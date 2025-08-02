@@ -1,8 +1,6 @@
-import { app, BrowserWindow, Tray, Menu, screen } from "electron";
-import { createRequire } from "node:module";
+import { app, BrowserWindow, ipcMain, Tray, Menu, screen } from "electron";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
-createRequire(import.meta.url);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 process.env.APP_ROOT = path.join(__dirname, "..");
 const VITE_DEV_SERVER_URL = process.env["VITE_DEV_SERVER_URL"];
@@ -33,6 +31,7 @@ function createWindow() {
   });
   if (VITE_DEV_SERVER_URL) {
     win.loadURL(VITE_DEV_SERVER_URL);
+    win.webContents.openDevTools();
   } else {
     win.loadFile(path.join(RENDERER_DIST, "index.html"));
   }
@@ -88,6 +87,9 @@ app.on("activate", () => {
 app.whenReady().then(() => {
   createWindow();
   createTray();
+});
+ipcMain.on("quit-app", () => {
+  app.quit();
 });
 export {
   MAIN_DIST,
